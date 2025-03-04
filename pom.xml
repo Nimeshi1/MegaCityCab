@@ -111,9 +111,11 @@
 						</exclude>
 					</excludes>
 				</configuration>
+				
 			</plugin>
-			<finalName>mega-city-cab-service-backend</finalName>
+			
 		</plugins>
+		<finalName>mega-city-cab-service-backend</finalName>
 	</build>
 	
 
