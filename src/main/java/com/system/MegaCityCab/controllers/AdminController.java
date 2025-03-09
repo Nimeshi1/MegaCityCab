@@ -18,7 +18,7 @@ import com.system.MegaCityCab.model.Admin;
 import com.system.MegaCityCab.service.AdminService;
 
 @RestController
-@RequestMapping("/admins")
+@RequestMapping("/auth/admins")
 @CrossOrigin(origins = "*")
 
 public class AdminController {
@@ -39,9 +39,8 @@ public class AdminController {
    }
 
    @PostMapping("/createAdmin")
-   public ResponseEntity<Admin> createAdmin(@RequestBody Admin admin) {
-       Admin createdAdmin = adminService.createAdmin(admin);
-       return new ResponseEntity<>(createdAdmin, HttpStatus.CREATED);
+   public ResponseEntity<?> createAdmin(@RequestBody Admin admin) {
+    return adminService.createAdmin(admin);
    }
 
    @PutMapping("/updateAdmin/{adminId}")

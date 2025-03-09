@@ -9,10 +9,14 @@ import com.system.MegaCityCab.model.Car;
 
 @Service
 public interface CarService {
-     List<Car>getAllCars();
+    List<Car>getAllCars();
+
     Car getCarById(String carId);
+
     Car createCar(Car car);
-    Car updateCar(String carId, Car car);
+
+    Car updateCar(String carId,Car car);
+
     void deleteCar(String carId);
     
 }

@@ -14,24 +14,20 @@ public class CarServiceImpl implements CarService{
     @Autowired
     private CarRepository carRepository;
 
-    
+    @Override
+    public List<Car> getAllCars() {
+        return carRepository.findAll();
+    }
 
     @Override
     public Car getCarById(String carId) {
         return carRepository.findById(carId)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + carId));
+                .orElseThrow(() -> new RuntimeException("Car not found with ID: " + carId));
     }
 
     @Override
     public Car createCar(Car car) {
         return carRepository.save(car);
-    }
-
-
-
-    @Override
-    public void deleteCar(String carId) {
-        carRepository.deleteById(carId);
     }
 
     @Override
@@ -42,16 +38,17 @@ public class CarServiceImpl implements CarService{
         existingCar.setCarModel(car.getCarModel());
         existingCar.setCarLicensePlate(car.getCarLicensePlate());
         existingCar.setCapacity(car.getCapacity());
+        existingCar.setAssignedDriverId(car.getAssignedDriverId());
         existingCar.setCarImgUrl(car.getCarImgUrl());
-        existingCar.setAvailable(car.isAvailable());
-
+        existingCar.setBaseRate(car.getBaseRate());
+        existingCar.setDriverRate(car.getDriverRate());
 
         return carRepository.save(existingCar);
     }
 
     @Override
-    public List<Car> getAllCars() {
-        return carRepository.findAll();
+    public void deleteCar(String carId) {
+        carRepository.deleteById(carId);
     }
 
 

@@ -18,7 +18,7 @@ import com.system.MegaCityCab.model.Customer;
 import com.system.MegaCityCab.service.CustomerService;
 
 @RestController
-@RequestMapping("/customers")
+@RequestMapping("/auth/customers")
 @CrossOrigin(origins = "*")
 
 public class CustomerController {
@@ -39,10 +39,9 @@ public class CustomerController {
    }
 
    @PostMapping("/createCustomer")
-   public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
-       Customer createdCustomer = customerService.createCustomer(customer);
-       return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
-   }
+    public ResponseEntity<?> createCustomer(@RequestBody Customer customer) {
+        return customerService.createCustomer(customer);
+    }
 
    @PutMapping("/updateCustomer/{customerId}")
    public ResponseEntity<Customer> updateCustomer(

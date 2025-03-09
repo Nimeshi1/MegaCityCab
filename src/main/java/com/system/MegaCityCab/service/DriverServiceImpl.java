@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DriverServiceImpl implements DriverService{
 
-      @Autowired
+    @Autowired
     private DriverRepository driverRepository;
 
     @Autowired
@@ -159,4 +159,7 @@ public class DriverServiceImpl implements DriverService{
 
         return bookingRepository.findByDriverId(driverId);
     }
+
+
+    
 }

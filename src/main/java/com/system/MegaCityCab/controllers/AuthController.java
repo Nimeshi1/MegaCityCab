@@ -1,51 +1,64 @@
 package com.system.MegaCityCab.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.system.MegaCityCab.model.Admin;
-import com.system.MegaCityCab.service.AdminService;
-import org.springframework.http.HttpStatus;
+
+import com.system.MegaCityCab.Dto.LoginDto;
+import com.system.MegaCityCab.util.JwtUtil;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/admins")
+@RequestMapping("/auth")
 @CrossOrigin(origins = "*")
-
 public class AuthController {
     @Autowired
-    private AdminService adminService;
+    private AuthenticationManager authenticationManager;
 
-    @GetMapping("/Admins")
-    public ResponseEntity<List<Admin>> getAllAdmins() {
-        List<Admin> admins = adminService.getAllAdmins();
-        return new ResponseEntity<>(admins, HttpStatus.OK);
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDTO) throws Exception {
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword())
+        );
+
+        String token = jwtUtil.generateToken(authentication);
+        String role = jwtUtil.extractRole(token);
+        String userId = jwtUtil.extractUserId(token);
+
+        return ResponseEntity.ok(new AuthResponse(token, role, userId));
     }
 
-    @GetMapping("/Admin/{id}")
-    public ResponseEntity<Admin> getAdminById(@PathVariable String adminId) {
-        Admin admin = adminService.getAdminById(adminId);
-        return new ResponseEntity<>(admin, HttpStatus.OK);
+}
+
+class AuthResponse{
+    private String token;
+    private String role;
+    private String userId;
+
+    public AuthResponse(String token, String role, String userId){
+        this.token = token;
+        this.role = role;
+        this.userId = userId;
     }
 
-    @PostMapping("/CreateAdmin")
-    public ResponseEntity<Admin> createAdmin(@RequestBody Admin admin) {
-        Admin createdAdmin = adminService.createAdmin(admin);
-        return new ResponseEntity<>(createdAdmin, HttpStatus.CREATED);
+    public String getToken(){
+        return token;
     }
-
-    @PutMapping("/Admin/{id}")
-    public ResponseEntity<Admin> updateAdminEntity
-            (@PathVariable String adminId, @RequestBody Admin admin) {
-        Admin updatedAdmin = adminService.updateAdmin(adminId, admin);
-        return new ResponseEntity<>(updatedAdmin, HttpStatus.OK);
-    } 
+    public String getRole(){
+        return role;
+    }
+    public String getUserId(){ return userId;}
+    
 }

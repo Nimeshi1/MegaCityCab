@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.system.MegaCityCab.model.Booking;
 import com.system.MegaCityCab.model.Car;
 import com.system.MegaCityCab.model.Driver;
+import com.system.MegaCityCab.service.CloudinaryService;
 import com.system.MegaCityCab.service.DriverService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -43,22 +44,24 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DriverController {
 
-  @Autowired
+    @Autowired
     private DriverService driverService;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @GetMapping("/getalldrivers")
     public List<Driver> getAllDrivers() {
         return driverService.getAllDrivers();
     }
 
-    @GetMapping("/drivers/{id}")
+    @GetMapping("/{driverId}")
     public Driver getDriverById(@PathVariable String driverId) {
         return driverService.getDriverById(driverId);
     }
 
-    @PostMapping(value = "/createdriver", 
-    consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
-    produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/createdriver", consumes = {
+            MediaType.MULTIPART_FORM_DATA_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createDriver(
             @RequestParam("driverName") String driverName,
             @RequestParam("email") String email,
@@ -67,8 +70,8 @@ public class DriverController {
             @RequestParam("password") String password,
             @RequestParam("hasOwnCar") boolean hasOwnCar,
             @RequestParam(value = "carLicensePlate", required = false) String carLicensePlate,
-            @RequestParam(value = "carModel", required = false) String carModel,
             @RequestParam(value = "carBrand", required = false) String carBrand,
+            @RequestParam(value = "carModel", required = false) String carModel,
             @RequestParam(value = "capacity", required = false) Integer capacity,
             @RequestParam(value = "baseRate", required = false) Double baseRate,
             @RequestParam(value = "driverRate", required = false) Double driverRate,
@@ -83,27 +86,34 @@ public class DriverController {
             driver.setPassword(password);
             driver.setHasOwnCar(hasOwnCar);
 
-            Car car = new Car();
-            car.setCarLicensePlate(carLicensePlate);
-            car.setCarModel(carModel);
-            car.setCarBrand(carBrand);
-            car.setCapacity(capacity);
-            car.setBaseRate(baseRate);
-            car.setDriverRate(driverRate);
-
-            if(hasOwnCar){
+            Car car = null;
+            if (hasOwnCar) {
                 car = new Car();
                 car.setCarLicensePlate(carLicensePlate);
                 car.setCarModel(carModel);
                 car.setCarBrand(carBrand);
-                car.setCapacity(capacity);
-                car.setBaseRate(baseRate);
-            car.setDriverRate(driverRate);
-                if(carImage != null && !carImage.isEmpty()){
-                    String carImageUrl = handleImageUpload(carImage, "car");
-                    car.setCarImgUrl(carImageUrl);
+
+                if (capacity != null) {
+                    car.setCapacity(capacity);
+                } else {
+
+                    car.setCapacity(4);
+                }
+
+                if (baseRate != null) {
+                    car.setBaseRate(baseRate);
+                }
+
+                if (driverRate != null) {
+                    car.setDriverRate(driverRate);
+                }
+
+                if (carImage != null && !carImage.isEmpty()) {
+                    String carImgUrl = cloudinaryService.uploadImage(carImage);
+                    car.setCarImgUrl(carImgUrl);
                 }
             }
+
             return driverService.createDriver(driver, car);
 
         } catch (Exception e) {
@@ -129,7 +139,7 @@ public class DriverController {
         return ResponseEntity.ok(driver);
     }
 
-     @GetMapping("/{driverId}/bookings")
+    @GetMapping("/{driverId}/bookings")
     public ResponseEntity<List<Booking>> getDriverBookings(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable String driverId) {
@@ -151,26 +161,10 @@ public class DriverController {
         return ResponseEntity.noContent().build();
     }
 
-    private String handleImageUpload(MultipartFile file, String type) throws IOException {
-        String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-
-        String basePath = type.equals("driver") ? "drivers/" : "cars/";
-        String uploadDir = "uploads/" + basePath;
-
-        File directory = new File(uploadDir);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        Path filePath = Paths.get(uploadDir + filename);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        return basePath + filename;
+    @PutMapping("/updateDriver/{driverId}")
+    public ResponseEntity<Driver> updateDriver(@PathVariable String driverId, @RequestBody Driver driver) {
+        log.info("Updating driver with ID: {}", driverId);
+        return ResponseEntity.ok(driverService.updateDriver(driverId, driver));
     }
-  
-              }
 
-
-    
-                       
-        
+}

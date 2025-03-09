@@ -20,8 +20,6 @@ public class Booking {
     private String customerId;
     private String driverId;
     private String carId;
-
-
     private String pickupDate;
     private String pickupLocation;
     private String dropLocation;

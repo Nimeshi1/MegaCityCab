@@ -3,10 +3,13 @@ package com.system.MegaCityCab.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.system.MegaCityCab.model.Admin;
 import com.system.MegaCityCab.repository.AdminRepository;
+import com.system.MegaCityCab.repository.DriverRepository;
 
 @Service
 public class AdminServiceImpl implements AdminService{
@@ -15,10 +18,27 @@ public class AdminServiceImpl implements AdminService{
     @Autowired
     private AdminRepository adminRepository;
 
+    @Autowired
+    private DriverRepository driverRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public boolean isEmailTaken(String email) {
+        return adminRepository.existsByEmail(email) || 
+               driverRepository.existsByEmail(email);
+    }
+
     @Override
-    public Admin createAdmin(Admin admin) {
+    public ResponseEntity<?> createAdmin(Admin admin) {
        
-            return adminRepository.save(admin);
+          if (isEmailTaken(admin.getEmail())) {
+            return ResponseEntity.badRequest()
+                .body("Email already exists: " + admin.getEmail());
+        }
+        String encodedPassword = passwordEncoder.encode(admin.getPassword());
+        admin.setPassword(encodedPassword);
+        return ResponseEntity.ok(adminRepository.save(admin));
     }
 
     

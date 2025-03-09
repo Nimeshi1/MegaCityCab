@@ -17,9 +17,20 @@ import lombok.Setter;
 public class Customer {
     @Id
     private String customerId;
+
+    private String customerNic;
+
     private String customerName;
+
+    private String customerAddress;
+
     private String email;
-    private String customerpNo;
-    private String userName;
+
+    private String customerPhone;
+
     private String password;
+
+    private String role ="CUSTOMER";
+
+
 }

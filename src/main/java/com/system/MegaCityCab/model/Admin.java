@@ -21,7 +21,6 @@ public class Admin {
 private String adminId;
 private String adminName;
 private String email;
-private String userName;
 private String password;
 private String role="ADMIN";
 
